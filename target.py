@@ -1,58 +1,45 @@
 #!/usr/bin/env python
 import scraperwiki           
-html = scraperwiki.scrape("https://listings.och.uwaterloo.ca/Listings/Search/Results")
 import lxml.html           
-root = lxml.html.fromstring(html)
-nameList = []
-
-#Targeting the names and location
-for tr in root.cssselect("div#Rentals tr td span a"):
-    print "_________________________________"
-    name = tr.text_content()
-    print name
-    nameList.extend(name)
-    
-    
-    
-#Price Listing
-
-for tr in root.cssselect(".t-last"):
-    price = tr.text_content()
-    print price
-    
-##UPDATED AND BETTER TARGETTING
-
-#!/usr/bin/env python
-import scraperwiki           
 html = scraperwiki.scrape("https://listings.och.uwaterloo.ca/Listings/Search/Results")
-import lxml.html           
 root = lxml.html.fromstring(html)
 master = []
 nameList = []
 priceList = []
-#Targeting the names and location
-for tr in root.cssselect("div#Rentals tr td span a"):
-    print "_________________________________"
-    name = tr.text_content()
-    nameList.extend(name)
+addressCheck = "Waterloo, ON"
+address = "https://listings.och.uwaterloo.ca/Listings/Search/Results?page="
+page = 0
+
+while (page!=7):
+	#Redirecting to new 
+	html = scraperwiki.scrape(address+str(page+1))
+	root = lxml.html.fromstring(html)
+
+	#Targeting the names and location
+	for tr in root.cssselect("div#Rentals tr td span a"):
+	    name = str.strip(tr.text_content())
+	    if addressCheck in name:
+	        print name
+	        nameList.append(name)
+	    
+	#Price Listing
+	for tr in root.cssselect(".t-last"):
+	    price = str.strip(tr.text_content())
+	    price = ''.join(price.split())
+	    # print price
+	    priceList.append(price)
+
+	page+=1
     
-#Price Listing
-for tr in root.cssselect(".t-last"):
-    price = tr.text_content()
-    priceList.extend(price)
     
 i = 0
-while(i!=len(nameList) or i!=len(priceList)):
+while(i!=len(nameList) and i!=len(priceList)):
     temp = {"Name" : nameList[i],
               "Price": priceList[i]
              }
     print temp
-    master.extend(temp)
+    master.append(temp)
     i+=1
 
-# j = 0
-# while (j != len(master)):
-#     print master[j]
-#     j+=1
     
 
